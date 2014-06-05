@@ -23,6 +23,8 @@ MetadataRenderer.prototype.initialize = function() {
   );
   this.glContext.texParameteri(this.glContext.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   this.glContext.texParameteri(this.glContext.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  this.glContext.texParameteri(this.glContext.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  this.glContext.texParameteri(this.glContext.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
   var depthRenderBufferHandle = gl.createRenderbuffer();
   gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBufferHandle);

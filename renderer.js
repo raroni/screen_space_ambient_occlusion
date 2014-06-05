@@ -10,7 +10,7 @@ Renderer.prototype.load = function() {
   var loader = new ShaderProgramCollectionLoader(this.glContext);
   loader.add('geometry', 'shaders/geometry.vert', 'shaders/geometry.frag');
   loader.add('metadata', 'shaders/metadata.vert', 'shaders/metadata.frag');
-  loader.add('ambient_occlusion', 'shaders/ambient_occlusion.vert', 'shaders/ambient_occlusion.frag');
+  loader.add('ambientOcclusion', 'shaders/ambient_occlusion.vert', 'shaders/ambient_occlusion.frag');
 
   loader.onCompletion = function() {
     this.setupGL();
@@ -19,6 +19,7 @@ Renderer.prototype.load = function() {
     this.setupPerspective();
     this.setupGeometryRenderer();
     this.setupMetadataRenderer();
+    this.setupAmbientOcclusionRenderer();
     this.onLoaded();
   }.bind(this);
   loader.execute();
@@ -46,6 +47,14 @@ Renderer.prototype.setupMetadataRenderer = function() {
   this.metadataRenderer.initialize();
 }
 
+Renderer.prototype.setupAmbientOcclusionRenderer = function() {
+  this.ambientOcclusionRenderer = new AmbientOcclusionRenderer(
+    this.glContext,
+    this.shaderPrograms.ambientOcclusion,
+    this.metadataRenderer.texture
+  );
+};
+
 Renderer.prototype.setupGL = function() {
   this.glContext.enable(this.glContext.CULL_FACE);
   this.glContext.enable(this.glContext.DEPTH_TEST);
@@ -54,6 +63,7 @@ Renderer.prototype.setupGL = function() {
 Renderer.prototype.setupPrograms = function() {
   this.setupGeometryProgram();
   this.setupMetadataProgram();
+  this.setupAmbientOcclusionProgram();
 };
 
 Renderer.prototype.setupGeometryProgram = function() {
@@ -79,7 +89,13 @@ Renderer.prototype.setupMetadataProgram = function() {
   program.setupUniformHandle("ProjectionTransformation");
   program.setupUniformHandle("ModelWorldTransformation");
   program.setupUniformHandle("WorldViewTransformation");
-}
+};
+
+Renderer.prototype.setupAmbientOcclusionProgram = function() {
+  var program = this.shaderPrograms.ambientOcclusion;
+  program.setupAttributeHandle('Position');
+  program.setupUniformHandle('Metadata');
+};
 
 Renderer.prototype.setupPerspective = function() {
   var fieldOfView = Math.PI*(0.5*0.66);
@@ -106,4 +122,5 @@ Renderer.prototype.draw = function() {
 
   this.geometryRenderer.draw();
   this.metadataRenderer.draw();
+  this.ambientOcclusionRenderer.draw();
 };
