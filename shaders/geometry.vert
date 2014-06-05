@@ -1,4 +1,4 @@
-attribute vec3 Position, Normal;
+attribute vec3 ModelPosition, ModelNormal;
 
 uniform mat4 ProjectionTransformation;
 uniform mat4 WorldViewTransformation;
@@ -9,10 +9,10 @@ varying vec4 vColor;
 varying vec4 InterpolatedLightPosition;
 
 void main() {
-  vec4 WorldPosition = ModelWorldTransformation*vec4(Position, 1.0);
+  vec4 WorldPosition = ModelWorldTransformation*vec4(ModelPosition, 1.0);
   gl_Position = ProjectionTransformation*WorldViewTransformation*WorldPosition;
 
-  vec4 worldNormal = normalize(ModelWorldTransformation*vec4(Normal, 0.0));
+  vec4 worldNormal = normalize(ModelWorldTransformation*vec4(ModelNormal, 0.0));
 
   float cosAngIncidence = dot(vec3(worldNormal), vec3(WorldLightDirection*-1.0));
   cosAngIncidence = clamp(cosAngIncidence, 0.0, 1.0);

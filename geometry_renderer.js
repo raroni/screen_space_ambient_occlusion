@@ -1,18 +1,14 @@
-function GeometryRenderer(glContext, shaderProgram) {
+function GeometryRenderer(glContext, shaderProgram, boxRenderers) {
   this.glContext = glContext;
   this.shaderProgram = shaderProgram;
-  this.boxRenderers = [];
+  this.boxRenderers = boxRenderers;
 }
-
-GeometryRenderer.prototype.addBox = function(box) {
-  var renderer = new BoxRenderer(this.glContext, box);
-  this.boxRenderers.push(renderer);
-};
 
 GeometryRenderer.prototype.draw = function() {
   var program = this.shaderProgram;
+  program.use();
 
-  ['Position', 'Normal'].forEach(function(attributeName) {
+  ['ModelPosition', 'ModelNormal'].forEach(function(attributeName) {
     var handle = program.getAttributeHandle(attributeName);
     this.glContext.enableVertexAttribArray(handle);
   }.bind(this));
@@ -32,7 +28,7 @@ GeometryRenderer.prototype.draw = function() {
     renderer.draw(program);
   });
 
-  ['Position', 'Normal'].forEach(function(attributeName) {
+  ['ModelPosition', 'ModelNormal'].forEach(function(attributeName) {
     var handle = program.getAttributeHandle(attributeName);
     this.glContext.disableVertexAttribArray(handle);
   }.bind(this));

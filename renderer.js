@@ -3,11 +3,14 @@ function Renderer(canvas) {
   canvas.height = 400;
   this.glContext = canvas.getContext('webgl');
   this.canvas = canvas;
+  this.boxRenderers = [];
 }
 
 Renderer.prototype.load = function() {
   var loader = new ShaderProgramCollectionLoader(this.glContext);
   loader.add('geometry', 'shaders/geometry.vert', 'shaders/geometry.frag');
+  loader.add('metadata', 'shaders/metadata.vert', 'shaders/metadata.frag');
+  loader.add('ambient_occlusion', 'shaders/ambient_occlusion.vert', 'shaders/ambient_occlusion.frag');
 
   loader.onCompletion = function() {
     this.setupGL();
@@ -15,6 +18,7 @@ Renderer.prototype.load = function() {
     this.setupPrograms();
     this.setupPerspective();
     this.setupGeometryRenderer();
+    this.setupMetadataRenderer();
     this.onLoaded();
   }.bind(this);
   loader.execute();
@@ -26,11 +30,21 @@ Renderer.prototype.setLight = function(light) {
 
 Renderer.prototype.setCamera = function(camera) {
   this.geometryRenderer.camera = camera;
+  this.metadataRenderer.camera = camera;
 };
 
 Renderer.prototype.setupGeometryRenderer = function() {
-  this.geometryRenderer = new GeometryRenderer(this.glContext, this.shaderPrograms.geometry);
+  this.geometryRenderer = new GeometryRenderer(this.glContext, this.shaderPrograms.geometry, this.boxRenderers);
 };
+
+Renderer.prototype.setupMetadataRenderer = function() {
+  var resolution = {
+    width: this.canvas.width,
+    height: this.canvas.height
+  };
+  this.metadataRenderer = new MetadataRenderer(this.glContext, this.shaderPrograms.metadata, resolution, this.boxRenderers);
+  this.metadataRenderer.initialize();
+}
 
 Renderer.prototype.setupGL = function() {
   this.glContext.enable(this.glContext.CULL_FACE);
@@ -39,12 +53,13 @@ Renderer.prototype.setupGL = function() {
 
 Renderer.prototype.setupPrograms = function() {
   this.setupGeometryProgram();
+  this.setupMetadataProgram();
 };
 
 Renderer.prototype.setupGeometryProgram = function() {
   var program = this.shaderPrograms.geometry;
 
-  ['Position', 'Normal'].forEach(function(attributeName) {
+  ['ModelPosition', 'ModelNormal'].forEach(function(attributeName) {
     program.setupAttributeHandle(attributeName);
   }.bind(this));
 
@@ -53,6 +68,18 @@ Renderer.prototype.setupGeometryProgram = function() {
   program.setupUniformHandle("WorldLightDirection");
   program.setupUniformHandle("WorldViewTransformation");
 };
+
+Renderer.prototype.setupMetadataProgram = function() {
+  var program = this.shaderPrograms.metadata;
+
+  ['ModelPosition', 'ModelNormal'].forEach(function(attributeName) {
+    program.setupAttributeHandle(attributeName);
+  }.bind(this));
+
+  program.setupUniformHandle("ProjectionTransformation");
+  program.setupUniformHandle("ModelWorldTransformation");
+  program.setupUniformHandle("WorldViewTransformation");
+}
 
 Renderer.prototype.setupPerspective = function() {
   var fieldOfView = Math.PI*(0.5*0.66);
@@ -68,7 +95,8 @@ Renderer.prototype.setupPerspective = function() {
 };
 
 Renderer.prototype.addBox = function(box) {
-  this.geometryRenderer.addBox(box);
+  var renderer = new BoxRenderer(this.glContext, box);
+  this.boxRenderers.push(renderer);
 };
 
 Renderer.prototype.draw = function() {
@@ -77,4 +105,5 @@ Renderer.prototype.draw = function() {
   this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
 
   this.geometryRenderer.draw();
+  this.metadataRenderer.draw();
 };

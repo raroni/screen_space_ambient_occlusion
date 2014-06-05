@@ -69,13 +69,11 @@ BoxRenderer.prototype.draw = function(program) {
 
   this.glContext.bindBuffer(this.glContext.ARRAY_BUFFER, this.bufferHandle);
 
-  var positionAttributeHandle = program.getAttributeHandle('Position');
+  var positionAttributeHandle = program.getAttributeHandle('ModelPosition');
   this.glContext.vertexAttribPointer(positionAttributeHandle, 3, this.glContext.FLOAT, false, 24, 0);
 
-  var normalAttributeHandle = program.getAttributeHandle('Normal');
-  if(typeof(normalAttributeHandle) != 'undefined') {
-    this.glContext.vertexAttribPointer(normalAttributeHandle, 3, this.glContext.FLOAT, false, 24, 12);
-  }
+  var normalAttributeHandle = program.getAttributeHandle('ModelNormal');
+  this.glContext.vertexAttribPointer(normalAttributeHandle, 3, this.glContext.FLOAT, false, 24, 12);
 
   this.glContext.drawArrays(this.glContext.TRIANGLES, 0, 36);
 };
