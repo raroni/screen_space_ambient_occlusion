@@ -20,10 +20,6 @@ GeometryRenderer.prototype.draw = function() {
   var direction = this.light.getDirection();
   this.glContext.uniform3fv(lightUniformHandle, direction.components);;
 
-  var lightProjectionTransformationUniformHandle = program.getUniformHandle('LightProjectionTransformation');
-  var projection = Matrix4.createOrthographic(-5, 5, -5, 5, 0.1, 100);
-  this.glContext.uniformMatrix4fv(lightProjectionTransformationUniformHandle, false, projection.components);
-
   this.boxRenderers.forEach(function(renderer) {
     renderer.draw(program);
   });
