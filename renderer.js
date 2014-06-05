@@ -2,7 +2,6 @@ function Renderer(canvas) {
   canvas.width = 1000;
   canvas.height = 400;
   this.glContext = canvas.getContext('webgl');
-  this.boxRenderers = [];
   this.canvas = canvas;
 }
 
@@ -15,13 +14,22 @@ Renderer.prototype.load = function() {
     this.shaderPrograms = loader.programs;
     this.setupPrograms();
     this.setupPerspective();
+    this.setupGeometryRenderer();
     this.onLoaded();
   }.bind(this);
   loader.execute();
 };
 
 Renderer.prototype.setLight = function(light) {
-  this.light = light;
+  this.geometryRenderer.light = light;
+};
+
+Renderer.prototype.setCamera = function(camera) {
+  this.geometryRenderer.camera = camera;
+};
+
+Renderer.prototype.setupGeometryRenderer = function() {
+  this.geometryRenderer = new GeometryRenderer(this.glContext, this.shaderPrograms.geometry);
 };
 
 Renderer.prototype.setupGL = function() {
@@ -60,8 +68,7 @@ Renderer.prototype.setupPerspective = function() {
 };
 
 Renderer.prototype.addBox = function(box) {
-  var renderer = new BoxRenderer(this.glContext, box);
-  this.boxRenderers.push(renderer);
+  this.geometryRenderer.addBox(box);
 };
 
 Renderer.prototype.draw = function() {
@@ -69,32 +76,5 @@ Renderer.prototype.draw = function() {
   this.glContext.clearColor(1, 1, 1, 1);
   this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
 
-  var program = this.shaderPrograms.geometry;
-  program.use();
-
-  ['Position', 'Normal'].forEach(function(attributeName) {
-    var handle = program.getAttributeHandle(attributeName);
-    this.glContext.enableVertexAttribArray(handle);
-  }.bind(this));
-
-  var worldViewUniformHandle = program.getUniformHandle('WorldViewTransformation');
-  this.glContext.uniformMatrix4fv(worldViewUniformHandle, false, this.camera.getInverseTransformation().components);
-
-  var lightUniformHandle = program.getUniformHandle('WorldLightDirection');
-  var direction = this.light.getDirection();
-  this.glContext.uniform3fv(lightUniformHandle, direction.components);;
-
-  var lightProjectionTransformationUniformHandle = program.getUniformHandle('LightProjectionTransformation');
-  var projection = Matrix4.createOrthographic(-5, 5, -5, 5, 0.1, 100);
-  this.glContext.uniformMatrix4fv(lightProjectionTransformationUniformHandle, false, projection.components);
-
-  this.boxRenderers.forEach(function(renderer) {
-    renderer.draw(program);
-  });
-
-  ['Position', 'Normal'].forEach(function(attributeName) {
-    var handle = program.getAttributeHandle(attributeName);
-    this.glContext.disableVertexAttribArray(handle);
-  }.bind(this));
-  this.glContext.bindTexture(this.glContext.TEXTURE_2D, null);
+  this.geometryRenderer.draw();
 };

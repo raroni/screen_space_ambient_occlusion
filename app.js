@@ -45,7 +45,7 @@ App.prototype.update = function() {
 
 App.prototype.setupWorld = function() {
   this.camera = new Camera();
-  this.renderer.camera = this.camera;
+  this.renderer.setCamera(this.camera);
 
   var distance = 2;
 
