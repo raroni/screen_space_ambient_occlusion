@@ -8,7 +8,40 @@ function AmbientOcclusionRenderer(glContext, shaderProgram, metadataTexture, res
 AmbientOcclusionRenderer.prototype.initialize = function() {
   this.setupFramebuffer();
   this.setupArrayBuffer();
+  this.setupKernel();
 };
+
+AmbientOcclusionRenderer.prototype.setupKernel = function() {
+  var kernel = this.createKernel();
+  var kernelHandle = this.shaderProgram.getUniformHandle('Kernel');
+  this.glContext.uniform3fv(kernelHandle, kernel);
+  var kernelSizeHandle = this.shaderProgram.getUniformHandle('KernelSize');
+  this.glContext.uniform1i(kernelSizeHandle, kernel.length);
+};
+
+AmbientOcclusionRenderer.prototype.createKernel = function() {
+  var kernelSize = 32;
+  this.kernel = new Float32Array(kernelSize);
+
+  var vector, scale;
+
+  for(var i=0; kernelSize>i; i++) {
+    vector = new Vector3(
+      Math.random()*2-1,
+      Math.random()*2-1,
+      Math.random()
+    );
+    vector.normalize();
+    scale = i/kernelSize;
+    vector.multiply(MiniMath.lerp(0, 1, scale*scale));
+
+    for(var n=0; 3>n; n++) {
+      this.kernel[i*3+n] = vector.components[n];
+    }
+  }
+
+  return this.kernel;
+}
 
 AmbientOcclusionRenderer.prototype.setupFramebuffer = function() {
   var gl = this.glContext;
@@ -42,14 +75,9 @@ AmbientOcclusionRenderer.prototype.setupFramebuffer = function() {
 
   gl.bindTexture(gl.TEXTURE_2D, null);
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 
   this.texture = texture;
   this.frameBufferHandle = frameBufferHandle;
-};
-
-AmbientOcclusionRenderer.prototype.setupTexture = function() {
-  setupMyTextureToRenderWAAAH();
 };
 
 AmbientOcclusionRenderer.prototype.setupArrayBuffer = function() {
