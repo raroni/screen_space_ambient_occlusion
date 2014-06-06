@@ -7,5 +7,5 @@ uniform vec3 Kernel[MAX_KERNEL_SIZE];
 
 void main() {
   vec4 x = texture2D(Metadata, vec2(0.5, 0.5));
-  gl_FragColor = vec4(0, 0, 1, 1);
+  gl_FragColor = vec4(0, 0, 0.8, 0.5);
 }

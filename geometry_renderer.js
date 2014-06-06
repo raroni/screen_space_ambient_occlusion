@@ -5,8 +5,6 @@ function GeometryRenderer(glContext, shaderProgram, boxRenderers) {
 }
 
 GeometryRenderer.prototype.draw = function() {
-  this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
-
   var program = this.shaderProgram;
   program.use();
 

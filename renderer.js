@@ -124,8 +124,9 @@ Renderer.prototype.addBox = function(box) {
 Renderer.prototype.draw = function() {
   this.glContext.viewport(0, 0, this.canvas.width, this.canvas.height);
   this.glContext.clearColor(1, 1, 1, 1);
+  this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
 
   this.metadataRenderer.draw();
-  this.ambientOcclusionRenderer.draw();
   this.geometryRenderer.draw();
+  this.ambientOcclusionRenderer.draw();
 };
