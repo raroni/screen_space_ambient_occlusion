@@ -48,11 +48,17 @@ Renderer.prototype.setupMetadataRenderer = function() {
 }
 
 Renderer.prototype.setupAmbientOcclusionRenderer = function() {
+  var resolution = {
+    width: this.canvas.width,
+    height: this.canvas.height
+  };
   this.ambientOcclusionRenderer = new AmbientOcclusionRenderer(
     this.glContext,
     this.shaderPrograms.ambientOcclusion,
-    this.metadataRenderer.texture
+    this.metadataRenderer.texture,
+    resolution
   );
+  this.ambientOcclusionRenderer.initialize();
 };
 
 Renderer.prototype.setupGL = function() {
@@ -118,9 +124,8 @@ Renderer.prototype.addBox = function(box) {
 Renderer.prototype.draw = function() {
   this.glContext.viewport(0, 0, this.canvas.width, this.canvas.height);
   this.glContext.clearColor(1, 1, 1, 1);
-  this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
 
-  this.geometryRenderer.draw();
   this.metadataRenderer.draw();
   this.ambientOcclusionRenderer.draw();
+  this.geometryRenderer.draw();
 };
