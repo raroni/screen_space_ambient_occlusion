@@ -42,8 +42,6 @@ void main() {
   vec3 Bitangent = cross(Tangent, ViewNormal);
   mat3 KernelBasis = mat3(Tangent, Bitangent, ViewNormal);
 
-  mat4 DEL_ME = ProjectionTransformation;
-
   float occlusion = 0.0;
   vec3 Sample;
   float black = 0.0;
@@ -67,6 +65,7 @@ void main() {
     float rangeCheck = abs(ViewPosition.z - sampleDepth) < Radius ? 1.0 : 0.0;
     occlusion += (sampleDepth+0.1 <= Sample.z ? 1.0 : 0.0)*rangeCheck;
   }
-  occlusion = (occlusion/float(KernelSize))*1.5;
-  gl_FragColor = vec4(0, 1, 1, occlusion);
+
+  occlusion = (occlusion/float(KernelSize));
+  gl_FragColor = vec4(0, 0, occlusion, occlusion);
 }

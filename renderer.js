@@ -42,7 +42,13 @@ Renderer.prototype.setupFinalizationRenderer = function() {
     width: this.canvas.width,
     height: this.canvas.height
   };
-  this.finalizationRenderer = new FinalizationRenderer(this.glContext, this.shaderPrograms.finalization, resolution, this.geometryRenderer.texture);
+  this.finalizationRenderer = new FinalizationRenderer(
+    this.glContext,
+    this.shaderPrograms.finalization,
+    resolution,
+    this.geometryRenderer.texture,
+    this.ambientOcclusionRenderer.resultTexture
+  );
   this.finalizationRenderer.initialize();
 };
 
@@ -126,6 +132,9 @@ Renderer.prototype.setupGeometryProgram = function() {
 Renderer.prototype.setupFinalizationProgram = function() {
   var program = this.shaderPrograms.finalization;
   program.setupAttributeHandle('Position');
+
+  program.setupUniformHandle("AmbientOcclusionTexture");
+  program.setupUniformHandle("GeometryTexture");
 };
 
 Renderer.prototype.setupMetadataProgram = function() {
@@ -167,8 +176,6 @@ Renderer.prototype.setupPerspective = function() {
 
   var inverseProjection = Matrix4.createInversePerspective(fieldOfView, aspectRatio, near, far);
 
-  window.x = inverseProjection;
-
   var inverseProjectionUniformHandle = this.shaderPrograms.ambientOcclusion.getUniformHandle('InverseProjectionTransformation');
   this.glContext.uniformMatrix4fv(inverseProjectionUniformHandle, false, inverseProjection.components);
 };
@@ -179,9 +186,9 @@ Renderer.prototype.addBox = function(box) {
 };
 
 Renderer.prototype.draw = function() {
-  //this.metadataRenderer.draw();
+  this.metadataRenderer.draw();
   this.geometryRenderer.draw();
-  //this.ambientOcclusionRenderer.draw();
-  //this.texturePeekRenderer.draw();
+  this.ambientOcclusionRenderer.draw();
   this.finalizationRenderer.draw();
+  this.texturePeekRenderer.draw();
 };

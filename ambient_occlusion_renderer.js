@@ -8,6 +8,7 @@ function AmbientOcclusionRenderer(glContext, shaderProgram, metadataTexture, res
 
 AmbientOcclusionRenderer.prototype.initialize = function() {
   this.setupArrayBuffer();
+  this.setupResultTexture();
   this.setupKernel();
   this.setupNoise();
 };
@@ -50,6 +51,49 @@ AmbientOcclusionRenderer.prototype.createNoise = function() {
     }
   }
   return noise;
+};
+
+AmbientOcclusionRenderer.prototype.setupResultTexture = function() {
+  var gl = this.glContext;
+
+  var texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    this.resolution.width,
+    this.resolution.height,
+    0,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    null
+  );
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  var depthRenderBufferHandle = gl.createRenderbuffer();
+  gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBufferHandle);
+  gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.resolution.width, this.resolution.height);
+
+  var frameBufferHandle = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBufferHandle)
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBufferHandle);
+
+  var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+  if(status != gl.FRAMEBUFFER_COMPLETE) {
+    throw new Error("Frame buffer not complete.");
+  }
+
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+
+  this.resultTexture = texture;
+  this.frameBufferHandle = frameBufferHandle;
 };
 
 AmbientOcclusionRenderer.prototype.setupKernel = function() {
@@ -107,33 +151,40 @@ AmbientOcclusionRenderer.prototype.setupArrayBuffer = function() {
 };
 
 AmbientOcclusionRenderer.prototype.draw = function() {
+  var gl = this.glContext;
   this.shaderProgram.use();
 
+  gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBufferHandle);
+  gl.viewport(0, 0, this.resolution.width, this.resolution.height);
+  this.glContext.clearColor(1, 1, 1, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
   var positionAttributeHandle = this.shaderProgram.getAttributeHandle('Position');
-  this.glContext.enableVertexAttribArray(positionAttributeHandle);
+  gl.enableVertexAttribArray(positionAttributeHandle);
 
-  this.glContext.bindBuffer(this.glContext.ARRAY_BUFFER, this.buffer);
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
-  this.glContext.vertexAttribPointer(positionAttributeHandle, 2, this.glContext.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(positionAttributeHandle, 2, gl.FLOAT, false, 0, 0);
 
-  this.glContext.activeTexture(this.glContext.TEXTURE0);
-  this.glContext.bindTexture(this.glContext.TEXTURE_2D, this.metadataTexture);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, this.metadataTexture);
   var metadataUniformHandle = this.shaderProgram.getUniformHandle('Metadata');
-  this.glContext.uniform1i(metadataUniformHandle, 0);
+  gl.uniform1i(metadataUniformHandle, 0);
 
-  this.glContext.activeTexture(this.glContext.TEXTURE1);
-  this.glContext.bindTexture(this.glContext.TEXTURE_2D, this.noiseTexture);
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, this.noiseTexture);
   var noiseUniformHandle = this.shaderProgram.getUniformHandle('Noise');
-  this.glContext.uniform1i(noiseUniformHandle, 1);
+  gl.uniform1i(noiseUniformHandle, 1);
 
-  this.glContext.disable(this.glContext.DEPTH_TEST);
-  this.glContext.blendFunc(this.glContext.SRC_ALPHA, this.glContext.ONE);
-  this.glContext.enable(this.glContext.BLEND);
-  this.glContext.drawArrays(this.glContext.TRIANGLE_STRIP, 0, 4);
-  this.glContext.enable(this.glContext.DEPTH_TEST);
-  this.glContext.disable(this.glContext.BLEND);
+  gl.disable(gl.DEPTH_TEST);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.enable(gl.DEPTH_TEST);
 
-  this.glContext.disableVertexAttribArray(positionAttributeHandle);
-  this.glContext.bindBuffer(this.glContext.ARRAY_BUFFER, null);
-  this.glContext.bindTexture(this.glContext.TEXTURE_2D, null);
+  gl.disableVertexAttribArray(positionAttributeHandle);
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 };

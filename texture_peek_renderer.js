@@ -36,29 +36,32 @@ TexturePeekRenderer.prototype.setupBuffer = function() {
 };
 
 TexturePeekRenderer.prototype.draw = function() {
+  var gl = this.glContext;
   this.shaderProgram.use();
   var positionAttributeHandle = this.shaderProgram.getAttributeHandle('Position');
-  this.glContext.enableVertexAttribArray(positionAttributeHandle);
+  gl.enableVertexAttribArray(positionAttributeHandle);
   var textureCoordinatesAttributeHandle = this.shaderProgram.getAttributeHandle('TextureCoordinates');
-  this.glContext.enableVertexAttribArray(textureCoordinatesAttributeHandle);
+  gl.enableVertexAttribArray(textureCoordinatesAttributeHandle);
 
-  this.glContext.bindBuffer(this.glContext.ARRAY_BUFFER, this.buffer);
+  gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
-  this.glContext.vertexAttribPointer(positionAttributeHandle, 2, this.glContext.FLOAT, false, 16, 0);
-  this.glContext.vertexAttribPointer(textureCoordinatesAttributeHandle, 2, this.glContext.FLOAT, false, 16, 8);
+  gl.vertexAttribPointer(positionAttributeHandle, 2, gl.FLOAT, false, 16, 0);
+  gl.vertexAttribPointer(textureCoordinatesAttributeHandle, 2, gl.FLOAT, false, 16, 8);
 
   var uniformInverseAspectRatioHandle = this.shaderProgram.getUniformHandle('InverseAspectRatio');
-  this.glContext.uniform1f(uniformInverseAspectRatioHandle, this.inverseAspectRatio);
+  gl.uniform1f(uniformInverseAspectRatioHandle, this.inverseAspectRatio);
 
-  this.glContext.activeTexture(this.glContext.TEXTURE0);
-  this.glContext.bindTexture(this.glContext.TEXTURE_2D, this.texture);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, this.texture);
   var samplerUniformHandle = this.shaderProgram.getUniformHandle('Sampler');
-  this.glContext.uniform1i(samplerUniformHandle, 0);
+  gl.uniform1i(samplerUniformHandle, 0);
 
-  this.glContext.drawArrays(this.glContext.TRIANGLE_STRIP, 0, 4);
+  gl.disable(gl.DEPTH_TEST);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.enable(gl.DEPTH_TEST);
 
-  this.glContext.disableVertexAttribArray(positionAttributeHandle);
-  this.glContext.disableVertexAttribArray(textureCoordinatesAttributeHandle);
-  this.glContext.bindBuffer(this.glContext.ARRAY_BUFFER, null);
-  this.glContext.bindTexture(this.glContext.TEXTURE_2D, null);
+  gl.disableVertexAttribArray(positionAttributeHandle);
+  gl.disableVertexAttribArray(textureCoordinatesAttributeHandle);
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+  gl.bindTexture(gl.TEXTURE_2D, null);
 };

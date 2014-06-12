@@ -1,8 +1,9 @@
-function FinalizationRenderer(glContext, shaderProgram, resolution, geometryTexture) {
+function FinalizationRenderer(glContext, shaderProgram, resolution, geometryTexture, ambientOcclusionTexture) {
   this.glContext = glContext;
   this.shaderProgram = shaderProgram;
   this.resolution = resolution;
   this.geometryTexture = geometryTexture;
+  this.ambientOcclusionTexture = ambientOcclusionTexture;
 }
 
 FinalizationRenderer.prototype.initialize = function() {
@@ -36,7 +37,6 @@ FinalizationRenderer.prototype.draw = function() {
   this.shaderProgram.use();
   var gl = this.glContext;
   gl.viewport(0, 0, this.resolution.width, this.resolution.height);
-  gl.clearColor(1, 1, 1, 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
@@ -51,9 +51,17 @@ FinalizationRenderer.prototype.draw = function() {
   var geometryTextureUniformHandle = this.shaderProgram.getUniformHandle('GeometryTexture');
   this.glContext.uniform1i(geometryTextureUniformHandle, 0);
 
+  this.glContext.activeTexture(this.glContext.TEXTURE1);
+  this.glContext.bindTexture(this.glContext.TEXTURE_2D, this.ambientOcclusionTexture);
+  var ambientOcclusionTextureUniformHandle = this.shaderProgram.getUniformHandle('AmbientOcclusionTexture');
+  this.glContext.uniform1i(ambientOcclusionTextureUniformHandle, 1);
+
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  
+
   gl.disableVertexAttribArray(positionAttributeHandle);
+  this.glContext.activeTexture(this.glContext.TEXTURE0);
+  this.glContext.bindTexture(this.glContext.TEXTURE_2D, null);
+  this.glContext.activeTexture(this.glContext.TEXTURE1);
   this.glContext.bindTexture(this.glContext.TEXTURE_2D, null);
   gl.bindBuffer(gl.ARRAY_BUFFER, null);
 };

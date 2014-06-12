@@ -54,6 +54,7 @@ GeometryRenderer.prototype.draw = function() {
 
   this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, this.frameBufferHandle);
   this.glContext.viewport(0, 0, this.resolution.width, this.resolution.height);
+  this.glContext.clearColor(1, 1, 1, 1);
   this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
 
   ['ModelPosition', 'ModelNormal'].forEach(function(attributeName) {
