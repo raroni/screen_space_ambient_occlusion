@@ -21,10 +21,10 @@ MetadataRenderer.prototype.initialize = function() {
     gl.UNSIGNED_BYTE,
     null
   );
-  this.glContext.texParameteri(this.glContext.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  this.glContext.texParameteri(this.glContext.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  this.glContext.texParameteri(this.glContext.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  this.glContext.texParameteri(this.glContext.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
   var depthRenderBufferHandle = gl.createRenderbuffer();
   gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBufferHandle);
@@ -50,8 +50,8 @@ MetadataRenderer.prototype.initialize = function() {
 
 MetadataRenderer.prototype.draw = function() {
   this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, this.frameBufferHandle);
-  this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
   this.glContext.viewport(0, 0, this.resolution.width, this.resolution.height);
+  this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
 
   var program = this.shaderProgram;
   program.use();
@@ -73,6 +73,5 @@ MetadataRenderer.prototype.draw = function() {
     this.glContext.disableVertexAttribArray(handle);
   }.bind(this));
 
-  this.glContext.bindTexture(this.glContext.TEXTURE_2D, null);
   this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, null);
 };

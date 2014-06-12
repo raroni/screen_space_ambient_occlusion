@@ -76,4 +76,6 @@ BoxRenderer.prototype.draw = function(program) {
   this.glContext.vertexAttribPointer(normalAttributeHandle, 3, this.glContext.FLOAT, false, 24, 12);
 
   this.glContext.drawArrays(this.glContext.TRIANGLES, 0, 36);
+
+  this.glContext.bindBuffer(this.glContext.ARRAY_BUFFER, null);
 };

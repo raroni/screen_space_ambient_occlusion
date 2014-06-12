@@ -18,9 +18,7 @@ Transformation.prototype.getDirection = function() {
 
 Transformation.prototype.getMatrix = function() {
   var translationMatrix = Matrix4.createTranslation(this.position);
-
-  var rotationMatrix = Matrix4.createYRotation(this.rotation.get(1));
-
+  rotationMatrix = Matrix4.createRotation(this.getDirection(), Vector3.up());
   var modelTransformation = Matrix4.multiply(translationMatrix, rotationMatrix);
   return modelTransformation;
 };

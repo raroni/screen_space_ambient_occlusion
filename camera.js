@@ -11,3 +11,7 @@ Camera.prototype.getDirection = function() {
 Camera.prototype.getInverseTransformation = function() {
   return this.transformation.getInverseMatrix();
 };
+
+Camera.prototype.getTransformation = function() {
+  return this.transformation.getMatrix();
+};

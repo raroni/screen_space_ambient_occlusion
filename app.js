@@ -80,6 +80,14 @@ App.prototype.setupWorld = function() {
   this.renderer.addBox(box5);
   this.box5 = box5;
 
+  var box6 = new Box();
+  box6.transformation.position.components[0] = -2;
+  box6.transformation.position.components[1] = 0.05;
+  box6.transformation.position.components[2] = -3;
+  box6.size = new Vector3(0.1, 0.1, 0.1);
+  this.renderer.addBox(box6);
+  this.box6 = box6;
+
   var floor = new Box();
   floor.size.components[0] = 8;
   floor.size.components[1] = 0.25;

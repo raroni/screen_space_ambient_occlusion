@@ -4,5 +4,6 @@ varying vec3 InterpolatedViewNormal;
 varying float InterpolatedViewPositionZ;
 
 void main() {
-  gl_FragColor = vec4(InterpolatedViewNormal, InterpolatedViewPositionZ);
+  vec3 packedNormal = (InterpolatedViewNormal*0.5) + 0.5;
+  gl_FragColor = vec4(packedNormal, InterpolatedViewPositionZ*0.05);
 }

@@ -11,15 +11,14 @@ Renderer.prototype.load = function() {
   loader.add('geometry', 'shaders/geometry.vert', 'shaders/geometry.frag');
   loader.add('metadata', 'shaders/metadata.vert', 'shaders/metadata.frag');
   loader.add('ambientOcclusion', 'shaders/ambient_occlusion.vert', 'shaders/ambient_occlusion.frag');
+  loader.add('texturePeek', 'shaders/texture_peek.vert', 'shaders/texture_peek.frag');
 
   loader.onCompletion = function() {
     this.setupGL();
     this.shaderPrograms = loader.programs;
     this.setupPrograms();
     this.setupPerspective();
-    this.setupGeometryRenderer();
-    this.setupMetadataRenderer();
-    this.setupAmbientOcclusionRenderer();
+    this.setupRenderers();
     this.onLoaded();
   }.bind(this);
   loader.execute();
@@ -29,9 +28,23 @@ Renderer.prototype.setLight = function(light) {
   this.geometryRenderer.light = light;
 };
 
+Renderer.prototype.setupRenderers = function() {
+  this.setupGeometryRenderer();
+  this.setupMetadataRenderer();
+  this.setupAmbientOcclusionRenderer();
+  this.setupTexturePeekRenderer();
+};
+
+Renderer.prototype.setupTexturePeekRenderer = function() {
+  var aspectRatio = this.canvas.width/this.canvas.height;
+  this.texturePeekRenderer = new TexturePeekRenderer(this.glContext, this.shaderPrograms.texturePeek, this.metadataRenderer.texture, aspectRatio);
+  this.texturePeekRenderer.initialize();
+};
+
 Renderer.prototype.setCamera = function(camera) {
   this.geometryRenderer.camera = camera;
   this.metadataRenderer.camera = camera;
+  this.ambientOcclusionRenderer.tempCamera = camera;
 };
 
 Renderer.prototype.setupGeometryRenderer = function() {
@@ -45,7 +58,7 @@ Renderer.prototype.setupMetadataRenderer = function() {
   };
   this.metadataRenderer = new MetadataRenderer(this.glContext, this.shaderPrograms.metadata, resolution, this.boxRenderers);
   this.metadataRenderer.initialize();
-}
+};
 
 Renderer.prototype.setupAmbientOcclusionRenderer = function() {
   var resolution = {
@@ -70,6 +83,15 @@ Renderer.prototype.setupPrograms = function() {
   this.setupGeometryProgram();
   this.setupMetadataProgram();
   this.setupAmbientOcclusionProgram();
+  this.setupTexturePeekProgram();
+};
+
+Renderer.prototype.setupTexturePeekProgram = function() {
+  var program = this.shaderPrograms.texturePeek;
+  program.setupAttributeHandle('Position');
+  program.setupAttributeHandle('TextureCoordinates');
+  program.setupUniformHandle("InverseAspectRatio");
+  program.setupUniformHandle("Sampler");
 };
 
 Renderer.prototype.setupGeometryProgram = function() {
@@ -101,6 +123,12 @@ Renderer.prototype.setupAmbientOcclusionProgram = function() {
   var program = this.shaderPrograms.ambientOcclusion;
   program.setupAttributeHandle('Position');
   program.setupUniformHandle('Metadata');
+  program.setupUniformHandle('InverseProjectionTransformation');
+  program.setupUniformHandle('ProjectionTransformation');
+  program.setupUniformHandle('Kernel');
+  program.setupUniformHandle('KernelSize');
+  program.setupUniformHandle('Noise');
+  program.setupUniformHandle('TempViewWorldTransformation');
 };
 
 Renderer.prototype.setupPerspective = function() {
@@ -108,12 +136,21 @@ Renderer.prototype.setupPerspective = function() {
   var aspectRatio = this.canvas.width/this.canvas.height;
   var near = 0.1;
   var far = 100;
-  var matrix = Matrix4.createPerspective(fieldOfView, aspectRatio, near, far);
+  var projection = Matrix4.createPerspective(fieldOfView, aspectRatio, near, far);
 
-  var program = this.shaderPrograms.geometry;
-  program.use();
-  var uniformHandle = program.getUniformHandle('ProjectionTransformation');
-  this.glContext.uniformMatrix4fv(uniformHandle, false, matrix.components);
+  ['geometry', 'metadata', 'ambientOcclusion'].forEach(function(shaderProgramName) {
+    var program = this.shaderPrograms[shaderProgramName];
+    program.use();
+    var uniformHandle = program.getUniformHandle('ProjectionTransformation');
+    this.glContext.uniformMatrix4fv(uniformHandle, false, projection.components);
+  }.bind(this));
+
+  var inverseProjection = Matrix4.createInversePerspective(fieldOfView, aspectRatio, near, far);
+
+  window.x = inverseProjection;
+
+  var inverseProjectionUniformHandle = this.shaderPrograms.ambientOcclusion.getUniformHandle('InverseProjectionTransformation');
+  this.glContext.uniformMatrix4fv(inverseProjectionUniformHandle, false, inverseProjection.components);
 };
 
 Renderer.prototype.addBox = function(box) {
@@ -122,11 +159,12 @@ Renderer.prototype.addBox = function(box) {
 };
 
 Renderer.prototype.draw = function() {
+  this.metadataRenderer.draw();
+
   this.glContext.viewport(0, 0, this.canvas.width, this.canvas.height);
   this.glContext.clearColor(1, 1, 1, 1);
   this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
-
-  this.metadataRenderer.draw();
   this.geometryRenderer.draw();
   this.ambientOcclusionRenderer.draw();
+  this.texturePeekRenderer.draw();
 };
