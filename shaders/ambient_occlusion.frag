@@ -2,11 +2,11 @@ precision mediump float;
 
 const int MAX_KERNEL_SIZE = 128;
 
-const float Radius = 1.0;
+const float Radius = 1.5;
 
 varying vec2 InterpolatedPosition;
 
-uniform mat4 ProjectionTransformation, InverseProjectionTransformation, TempViewWorldTransformation;
+uniform mat4 ProjectionTransformation, InverseProjectionTransformation;
 uniform sampler2D Metadata;
 uniform sampler2D Noise;
 uniform int KernelSize;
@@ -16,13 +16,12 @@ void main() {
   vec2 TextureCoordinate = InterpolatedPosition*0.5 + 0.5;
 
   vec4 MetadataItem = texture2D(Metadata, TextureCoordinate);
-  float ViewDepth = MetadataItem[3]*20.0; // <- ViewPosZ
+  float ViewDepth = MetadataItem[3]*20.0;
   vec3 ViewNormal = (MetadataItem.xyz*2.0)-1.0;
 
   vec4 FarPlaneNDCPosition = vec4(InterpolatedPosition.xy, 1, 1);
   vec4 FarPlaneViewPosition = InverseProjectionTransformation*FarPlaneNDCPosition;
   vec3 ViewPosition = FarPlaneViewPosition.xyz*ViewDepth;
-  vec3 WorldPosition = (TempViewWorldTransformation*vec4(ViewPosition, 1.0)).xyz;
 
   // Er/bør ViewDepth/ViewPosition.Z det samme? Burde man ikke anvende med w for at gå fra NDC > View?
   // THAT^ Det spørgsmål skal være tydeligt for mig. Så research det godt indtil det er "obvious".
@@ -53,7 +52,6 @@ void main() {
 
     // get sample position:
     Sample = KernelBasis * Kernel[i];
-    //Sample = Kernel[i];
     Sample = ViewPosition + Sample*Radius;
 
     // project sample position:
@@ -67,24 +65,8 @@ void main() {
 
     // range check & accumulate:
     float rangeCheck = abs(ViewPosition.z - sampleDepth) < Radius ? 1.0 : 0.0;
-    occlusion += (sampleDepth <= Sample.z ? 1.0 : 0.0)*rangeCheck;
-    if(ViewPosition.z*1.1 < sampleDepth) black = 0.5;
+    occlusion += (sampleDepth+0.1 <= Sample.z ? 1.0 : 0.0)*rangeCheck;
   }
-  occlusion = (occlusion/float(KernelSize))*2.0;
-  gl_FragColor = vec4(0, 1, 1, WorldPosition.z+2.0); // TYDELIGT AT SE AT World.Z ER AFHÆNGIG AF CAM POS :-(
-
-  /*
-  float op = (ViewPosition.x > -2.1 && ViewPosition.x < -1.9) ? 0.33 : 0.0;
-  op += (ViewPosition.y > -0.95 && ViewPosition.y < -0.85) ? 0.33 : 0.0;
-  op += (ViewPosition.z > 6.75 && ViewPosition.z < 6.95) ? 0.33 : 0.0;
-  gl_FragColor = vec4(0, 1, 1, op);
-  */
-
-  float op = (WorldPosition.x > -2.1 && WorldPosition.x < -1.9) ? 0.33 : 0.0;
-  op += (WorldPosition.y > -0.1 && WorldPosition.y < 0.2) ? 0.33 : 0.0;
-  op += (WorldPosition.z > -3.1 && WorldPosition.z < -2.9) ? 0.33 : 0.0;
-  gl_FragColor = vec4(0, 1, 1, op);
-
-  // gl_FragColor = vec4(0, 1, 1, ViewPosition.z-10.0);
-  // Interessant test: Farv alle dem der occluderes DET MINDSTE
+  occlusion = (occlusion/float(KernelSize))*1.5;
+  gl_FragColor = vec4(0, 1, 1, occlusion);
 }

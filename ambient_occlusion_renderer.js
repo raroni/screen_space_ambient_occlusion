@@ -126,9 +126,6 @@ AmbientOcclusionRenderer.prototype.draw = function() {
   var noiseUniformHandle = this.shaderProgram.getUniformHandle('Noise');
   this.glContext.uniform1i(noiseUniformHandle, 1);
 
-  var worldViewUniformHandle = this.shaderProgram.getUniformHandle('TempViewWorldTransformation');
-  this.glContext.uniformMatrix4fv(worldViewUniformHandle, false, this.tempCamera.getTransformation().components);
-
   this.glContext.disable(this.glContext.DEPTH_TEST);
   this.glContext.blendFunc(this.glContext.SRC_ALPHA, this.glContext.ONE);
   this.glContext.enable(this.glContext.BLEND);

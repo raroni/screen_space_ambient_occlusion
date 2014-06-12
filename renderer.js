@@ -44,7 +44,6 @@ Renderer.prototype.setupTexturePeekRenderer = function() {
 Renderer.prototype.setCamera = function(camera) {
   this.geometryRenderer.camera = camera;
   this.metadataRenderer.camera = camera;
-  this.ambientOcclusionRenderer.tempCamera = camera;
 };
 
 Renderer.prototype.setupGeometryRenderer = function() {
@@ -128,7 +127,6 @@ Renderer.prototype.setupAmbientOcclusionProgram = function() {
   program.setupUniformHandle('Kernel');
   program.setupUniformHandle('KernelSize');
   program.setupUniformHandle('Noise');
-  program.setupUniformHandle('TempViewWorldTransformation');
 };
 
 Renderer.prototype.setupPerspective = function() {
