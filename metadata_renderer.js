@@ -50,6 +50,7 @@ MetadataRenderer.prototype.initialize = function() {
 
 MetadataRenderer.prototype.draw = function() {
   this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, this.frameBufferHandle);
+  this.glContext.clearColor(0, 0, 0, 0);
   this.glContext.viewport(0, 0, this.resolution.width, this.resolution.height);
   this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
 

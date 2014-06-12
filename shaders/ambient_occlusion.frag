@@ -2,7 +2,7 @@ precision mediump float;
 
 const int MAX_KERNEL_SIZE = 128;
 
-const float Radius = 1.5;
+const float Radius = 0.75;
 
 varying vec2 InterpolatedPosition;
 
@@ -18,6 +18,11 @@ void main() {
   vec4 MetadataItem = texture2D(Metadata, TextureCoordinate);
   float ViewDepth = MetadataItem[3]*20.0;
   vec3 ViewNormal = (MetadataItem.xyz*2.0)-1.0;
+
+  if(ViewDepth == 0.0) {
+    gl_FragColor = vec4(0, 0, 0, 0);
+    return;
+  }
 
   vec4 FarPlaneNDCPosition = vec4(InterpolatedPosition.xy, 1, 1);
   vec4 FarPlaneViewPosition = InverseProjectionTransformation*FarPlaneNDCPosition;
