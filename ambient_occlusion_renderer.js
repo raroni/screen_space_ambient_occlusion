@@ -1,9 +1,10 @@
-function AmbientOcclusionRenderer(glContext, shaderProgram, metadataTexture, resolution) {
+function AmbientOcclusionRenderer(glContext, shaderProgram, metadataTexture, resolution, normalMapImage) {
   this.glContext = glContext;
   this.shaderProgram = shaderProgram;
   this.metadataTexture = metadataTexture;
   this.resolution = resolution;
   this.noiseSize = 4;
+  this.normalMapImage = normalMapImage;
 }
 
 AmbientOcclusionRenderer.prototype.initialize = function() {
@@ -11,6 +12,28 @@ AmbientOcclusionRenderer.prototype.initialize = function() {
   this.setupResultTexture();
   this.setupKernel();
   this.setupNoise();
+  this.setupNormalMap();
+};
+
+AmbientOcclusionRenderer.prototype.setupNormalMap = function() {
+  var gl = this.glContext;
+  var noise = this.createNoise();
+
+  var texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    gl.RGBA,
+    gl.UNSIGNED_BYTE,
+    this.normalMapImage
+  );
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  this.normalMapTexture = texture;
 };
 
 AmbientOcclusionRenderer.prototype.setupNoise = function() {

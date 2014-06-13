@@ -9,10 +9,13 @@ varying vec2 InterpolatedPosition;
 uniform mat4 ProjectionTransformation, InverseProjectionTransformation;
 uniform sampler2D Metadata;
 uniform sampler2D Noise;
+uniform sampler2D NormalMap;
 uniform int KernelSize;
 uniform vec3 Kernel[MAX_KERNEL_SIZE];
 
 void main() {
+  vec4 x = texture2D(NormalMap, vec2(0.5, 0.5)); // temp hack
+
   vec2 TextureCoordinate = InterpolatedPosition*0.5 + 0.5;
 
   vec4 MetadataItem = texture2D(Metadata, TextureCoordinate);

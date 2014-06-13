@@ -16,12 +16,17 @@ Renderer.prototype.load = function() {
   loader.add('finalization', 'shaders/finalization.vert', 'shaders/finalization.frag');
 
   loader.onCompletion = function() {
-    this.setupGL();
-    this.shaderPrograms = loader.programs;
-    this.setupPrograms();
-    this.setupPerspective();
-    this.setupRenderers();
-    this.onLoaded();
+    var image = new Image();
+    image.onload = function() {
+      this.setupGL();
+      this.shaderPrograms = loader.programs;
+      this.setupPrograms();
+      this.setupPerspective();
+      this.setupRenderers();
+      this.onLoaded();
+    }.bind(this);
+    image.src = 'images/normal_map.png';
+    this.normalMapImage = image;
   }.bind(this);
   loader.execute();
 };
@@ -107,7 +112,8 @@ Renderer.prototype.setupAmbientOcclusionRenderer = function() {
     this.glContext,
     this.shaderPrograms.ambientOcclusion,
     this.positionDistanceRenderer.texture,
-    resolution
+    resolution,
+    this.normalMapImage
   );
   this.ambientOcclusionRenderer.initialize();
 };
@@ -187,6 +193,7 @@ Renderer.prototype.setupAmbientOcclusionProgram = function() {
   program.setupUniformHandle('Kernel');
   program.setupUniformHandle('KernelSize');
   program.setupUniformHandle('Noise');
+  program.setupUniformHandle('NormalMap');
 };
 
 Renderer.prototype.setupPerspective = function() {
