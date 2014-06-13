@@ -6,14 +6,17 @@ const float Radius = 0.75;
 
 varying vec2 InterpolatedPosition;
 
-uniform mat4 ProjectionTransformation, InverseProjectionTransformation;
-uniform sampler2D Metadata;
-uniform sampler2D Noise;
-uniform sampler2D NormalMap;
-uniform int KernelSize;
-uniform vec3 Kernel[MAX_KERNEL_SIZE];
+uniform sampler2D PositionDistanceTexture;
+uniform sampler2D RandomTexture;
+uniform sampler2D NormalTexture;
 
 void main() {
+  vec4 x = texture2D(RandomTexture, vec2(0.5, 0.5));
+  vec4 y = texture2D(PositionDistanceTexture, vec2(0.5, 0.5));
+  vec4 z = texture2D(NormalTexture, vec2(0.5, 0.5));
+
+  gl_FragColor = vec4(0, 0, 0, 1);
+  /*
   vec4 x = texture2D(NormalMap, vec2(0.5, 0.5)); // temp hack
 
   vec2 TextureCoordinate = InterpolatedPosition*0.5 + 0.5;
@@ -76,4 +79,5 @@ void main() {
 
   occlusion = (occlusion/float(KernelSize));
   gl_FragColor = vec4(0, 0, occlusion, occlusion);
+  */
 }

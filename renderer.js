@@ -38,8 +38,8 @@ Renderer.prototype.setLight = function(light) {
 Renderer.prototype.setupRenderers = function() {
   this.setupGeometryRenderer();
   this.setupPositionDistanceRenderer();
-  this.setupAmbientOcclusionRenderer();
   this.setupNormalRenderer();
+  this.setupAmbientOcclusionRenderer();
   this.setupTexturePeekRenderer();
   this.setupFinalizationRenderer();
 };
@@ -112,8 +112,9 @@ Renderer.prototype.setupAmbientOcclusionRenderer = function() {
     this.glContext,
     this.shaderPrograms.ambientOcclusion,
     this.positionDistanceRenderer.texture,
-    resolution,
-    this.normalMapImage
+    this.normalRenderer.texture,
+    this.normalMapImage,
+    resolution
   );
   this.ambientOcclusionRenderer.initialize();
 };
@@ -187,13 +188,9 @@ Renderer.prototype.setupPositionDistanceProgram = function() {
 Renderer.prototype.setupAmbientOcclusionProgram = function() {
   var program = this.shaderPrograms.ambientOcclusion;
   program.setupAttributeHandle('Position');
-  program.setupUniformHandle('Metadata');
-  program.setupUniformHandle('InverseProjectionTransformation');
-  program.setupUniformHandle('ProjectionTransformation');
-  program.setupUniformHandle('Kernel');
-  program.setupUniformHandle('KernelSize');
-  program.setupUniformHandle('Noise');
-  program.setupUniformHandle('NormalMap');
+  program.setupUniformHandle('RandomTexture');
+  program.setupUniformHandle('PositionDistanceTexture');
+  program.setupUniformHandle('NormalTexture');
 };
 
 Renderer.prototype.setupPerspective = function() {
@@ -203,17 +200,12 @@ Renderer.prototype.setupPerspective = function() {
   var far = 100;
   var projection = Matrix4.createPerspective(fieldOfView, aspectRatio, near, far);
 
-  ['geometry', 'positionDistance', 'normal', 'ambientOcclusion'].forEach(function(shaderProgramName) {
+  ['geometry', 'positionDistance', 'normal'].forEach(function(shaderProgramName) {
     var program = this.shaderPrograms[shaderProgramName];
     program.use();
     var uniformHandle = program.getUniformHandle('ProjectionTransformation');
     this.glContext.uniformMatrix4fv(uniformHandle, false, projection.components);
   }.bind(this));
-
-  var inverseProjection = Matrix4.createInversePerspective(fieldOfView, aspectRatio, near, far);
-  var inverseProjectionUniformHandle = this.shaderPrograms.ambientOcclusion.getUniformHandle('InverseProjectionTransformation');
-  this.shaderPrograms.ambientOcclusion.use();
-  this.glContext.uniformMatrix4fv(inverseProjectionUniformHandle, false, inverseProjection.components);
 
   var depthSpanUniformHandle = this.shaderPrograms.positionDistance.getUniformHandle('DepthSpan');
   this.shaderPrograms.positionDistance.use();
