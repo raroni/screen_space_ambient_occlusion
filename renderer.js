@@ -4,6 +4,10 @@ function Renderer(canvas) {
   this.glContext = canvas.getContext('webgl');
   this.canvas = canvas;
   this.boxRenderings = [];
+  this.ambientOcclusionConfig = {
+    constantAttenuation: 10,
+    distanceAttenuation: 50
+  };
 }
 
 Renderer.prototype.load = function() {
@@ -114,7 +118,8 @@ Renderer.prototype.setupAmbientOcclusionRenderer = function() {
     this.positionDistanceRenderer.texture,
     this.normalRenderer.texture,
     this.normalMapImage,
-    resolution
+    resolution,
+    this.ambientOcclusionConfig
   );
   this.ambientOcclusionRenderer.initialize();
 };
@@ -191,6 +196,8 @@ Renderer.prototype.setupAmbientOcclusionProgram = function() {
   program.setupUniformHandle('RandomTexture');
   program.setupUniformHandle('PositionDistanceTexture');
   program.setupUniformHandle('NormalTexture');
+  program.setupUniformHandle('ConstantAttenuation');
+  program.setupUniformHandle('DistanceAttenuation');
 };
 
 Renderer.prototype.setupPerspective = function() {

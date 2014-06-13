@@ -1,10 +1,11 @@
-function AmbientOcclusionRenderer(glContext, shaderProgram, positionDistanceTexture, normalTexture, normalMapImage, resolution) {
+function AmbientOcclusionRenderer(glContext, shaderProgram, positionDistanceTexture, normalTexture, normalMapImage, resolution, config) {
   this.glContext = glContext;
   this.shaderProgram = shaderProgram;
   this.positionDistanceTexture = positionDistanceTexture;
   this.normalTexture = normalTexture;
   this.resolution = resolution;
   this.normalMapImage = normalMapImage;
+  this.config = config;
 }
 
 AmbientOcclusionRenderer.prototype.initialize = function() {
@@ -107,6 +108,12 @@ AmbientOcclusionRenderer.prototype.draw = function() {
   gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
 
   gl.vertexAttribPointer(positionAttributeHandle, 2, gl.FLOAT, false, 0, 0);
+
+  var constantAttenuationUniformHandle = this.shaderProgram.getUniformHandle('ConstantAttenuation');
+  gl.uniform1f(constantAttenuationUniformHandle, this.config.constantAttenuation);
+
+  var constantAttenuationUniformHandle = this.shaderProgram.getUniformHandle('DistanceAttenuation');
+  gl.uniform1f(constantAttenuationUniformHandle, this.config.distanceAttenuation);
 
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, this.positionDistanceTexture);

@@ -8,10 +8,11 @@ uniform sampler2D NormalTexture;
 
 const float OccluderBias = 0.05; // <- fix!
 
+uniform float ConstantAttenuation;
+uniform float DistanceAttenuation;
+
 float SamplePixels(vec3 SourcePosition, vec3 SourceNormal, vec2 SampleTextureCoordinates) {
   vec3 SamplePosition = texture2D(PositionDistanceTexture, SampleTextureCoordinates).xyz;
-
-  vec2 Attenuation = vec2(10, 50); // <- fix!
 
   // Calculate ambient occlusion amount between these two points
   // It is simular to diffuse lighting. Objects directly above the fragment cast
@@ -22,7 +23,7 @@ float SamplePixels(vec3 SourcePosition, vec3 SourceNormal, vec2 SampleTextureCoo
   // Attenuate the occlusion, similar to how you attenuate a light source.
   // The further the distance between points, the less effect AO has on the fragment.
   float Distance = length(PositionVec); // <- godt navn?
-  float attenuation = 1.0 / (Attenuation.x + (Attenuation.y * Distance));
+  float attenuation = 1.0 / (ConstantAttenuation + (DistanceAttenuation * Distance));
 
   return intensity * attenuation;
 }
