@@ -1,9 +1,5 @@
 precision mediump float;
 
-const int MAX_KERNEL_SIZE = 128;
-
-const float Radius = 0.75;
-
 varying vec2 InterpolatedTextureCoordinates;
 
 uniform sampler2D PositionDistanceTexture;
