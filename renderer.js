@@ -9,7 +9,7 @@ function Renderer(canvas) {
 Renderer.prototype.load = function() {
   var loader = new ShaderProgramCollectionLoader(this.glContext);
   loader.add('geometry', 'shaders/geometry.vert', 'shaders/geometry.frag');
-  loader.add('positionDistance', 'shaders/position_depth.vert', 'shaders/position_depth.frag');
+  loader.add('positionDistance', 'shaders/position_distance.vert', 'shaders/position_distance.frag');
   loader.add('ambientOcclusion', 'shaders/ambient_occlusion.vert', 'shaders/ambient_occlusion.frag');
   loader.add('texturePeek', 'shaders/texture_peek.vert', 'shaders/texture_peek.frag');
   loader.add('finalization', 'shaders/finalization.vert', 'shaders/finalization.frag');
