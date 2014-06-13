@@ -79,5 +79,4 @@ NormalRenderer.prototype.draw = function() {
   gl.disableVertexAttribArray(modelPositionAttributeHandle);
   gl.disableVertexAttribArray(modelNormalAttributeHandle);
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
 };
