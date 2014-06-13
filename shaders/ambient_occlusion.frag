@@ -4,18 +4,18 @@ const int MAX_KERNEL_SIZE = 128;
 
 const float Radius = 0.75;
 
-varying vec2 InterpolatedPosition;
+varying vec2 InterpolatedTextureCoordinates;
 
 uniform sampler2D PositionDistanceTexture;
 uniform sampler2D RandomTexture;
 uniform sampler2D NormalTexture;
 
 void main() {
-  vec4 x = texture2D(RandomTexture, vec2(0.5, 0.5));
-  vec4 y = texture2D(PositionDistanceTexture, vec2(0.5, 0.5));
+  vec4 x = texture2D(RandomTexture, InterpolatedTextureCoordinates);
+  vec4 y = texture2D(PositionDistanceTexture, InterpolatedTextureCoordinates);
   vec4 z = texture2D(NormalTexture, vec2(0.5, 0.5));
 
-  gl_FragColor = vec4(0, 0, 0, 1);
+  gl_FragColor = vec4(clamp(y.x, 0.0, 0.5), 0, 0, 1);
   /*
   vec4 x = texture2D(NormalMap, vec2(0.5, 0.5)); // temp hack
 

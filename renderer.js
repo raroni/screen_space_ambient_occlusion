@@ -63,7 +63,7 @@ Renderer.prototype.setupFinalizationRenderer = function() {
     this.shaderPrograms.finalization,
     resolution,
     this.geometryRenderer.texture,
-    this.ambientOcclusionRenderer.resultTexture
+    this.ambientOcclusionRenderer.texture
   );
   this.finalizationRenderer.initialize();
 };

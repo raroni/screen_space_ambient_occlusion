@@ -67,7 +67,7 @@ AmbientOcclusionRenderer.prototype.setupFrameBuffer = function() {
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   gl.bindRenderbuffer(gl.RENDERBUFFER, null);
 
-  this.resultTexture = texture;
+  this.texture = texture;
   this.frameBufferHandle = frameBufferHandle;
 };
 
