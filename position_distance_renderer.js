@@ -1,11 +1,11 @@
-function MetadataRenderer(glContext, shaderProgram, resolution, boxRenderers) {
+function PositionDistanceRenderer(glContext, shaderProgram, resolution, boxRenderings) {
   this.glContext = glContext;
   this.shaderProgram = shaderProgram;
   this.resolution = resolution;
-  this.boxRenderers = boxRenderers;
+  this.boxRenderings = boxRenderings;
 }
 
-MetadataRenderer.prototype.initialize = function() {
+PositionDistanceRenderer.prototype.initialize = function() {
   var gl = this.glContext;
 
   var texture = gl.createTexture();
@@ -18,7 +18,7 @@ MetadataRenderer.prototype.initialize = function() {
     this.resolution.height,
     0,
     gl.RGBA,
-    gl.UNSIGNED_BYTE,
+    gl.FLOAT,
     null
   );
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -48,31 +48,31 @@ MetadataRenderer.prototype.initialize = function() {
   this.frameBufferHandle = frameBufferHandle;
 };
 
-MetadataRenderer.prototype.draw = function() {
-  this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, this.frameBufferHandle);
-  this.glContext.clearColor(0, 0, 0, 0);
-  this.glContext.viewport(0, 0, this.resolution.width, this.resolution.height);
-  this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
+PositionDistanceRenderer.prototype.draw = function() {
+  var gl = this.glContext;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBufferHandle);
+  gl.clearColor(0, 0, 0, 0);
+  gl.viewport(0, 0, this.resolution.width, this.resolution.height);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   var program = this.shaderProgram;
   program.use();
 
-  ['ModelPosition', 'ModelNormal'].forEach(function(attributeName) {
-    var handle = program.getAttributeHandle(attributeName);
-    this.glContext.enableVertexAttribArray(handle);
-  }.bind(this));
+  var modelPositionAttributeHandle = program.getAttributeHandle('ModelPosition');
+  gl.enableVertexAttribArray(modelPositionAttributeHandle);
 
   var worldViewUniformHandle = program.getUniformHandle('WorldViewTransformation');
-  this.glContext.uniformMatrix4fv(worldViewUniformHandle, false, this.camera.getInverseTransformation().components);
+  gl.uniformMatrix4fv(worldViewUniformHandle, false, this.camera.getInverseTransformation().components);
 
-  this.boxRenderers.forEach(function(renderer) {
-    renderer.draw(program);
+  this.boxRenderings.forEach(function(rendering) {
+    var uniformHandle = program.getUniformHandle('ModelWorldTransformation');
+    gl.uniformMatrix4fv(uniformHandle, false, rendering.box.getTransformation().components);
+    gl.bindBuffer(gl.ARRAY_BUFFER, rendering.bufferHandle);
+    gl.vertexAttribPointer(modelPositionAttributeHandle, 3, gl.FLOAT, false, 24, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 36);
   });
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
 
-  ['ModelPosition', 'ModelNormal'].forEach(function(attributeName) {
-    var handle = program.getAttributeHandle(attributeName);
-    this.glContext.disableVertexAttribArray(handle);
-  }.bind(this));
-
-  this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, null);
+  gl.disableVertexAttribArray(modelPositionAttributeHandle);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 };

@@ -40,7 +40,7 @@ App.prototype.update = function() {
   //this.light.transformation.rotation.components[1] += 0.03;
   //this.camera.transformation.rotation.components[1] += 0.03;
   this.renderer.draw();
-  requestAnimationFrame(this.update.bind(this));
+  //requestAnimationFrame(this.update.bind(this));
 }
 
 App.prototype.setupWorld = function() {

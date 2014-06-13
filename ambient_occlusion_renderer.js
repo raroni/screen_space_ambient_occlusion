@@ -99,6 +99,7 @@ AmbientOcclusionRenderer.prototype.setupResultTexture = function() {
 AmbientOcclusionRenderer.prototype.setupKernel = function() {
   var kernel = this.createKernel();
   var kernelHandle = this.shaderProgram.getUniformHandle('Kernel');
+  this.shaderProgram.use();
   this.glContext.uniform3fv(kernelHandle, kernel);
   var kernelSizeHandle = this.shaderProgram.getUniformHandle('KernelSize');
   this.glContext.uniform1i(kernelSizeHandle, kernel.length/3);

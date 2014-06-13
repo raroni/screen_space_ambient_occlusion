@@ -1,7 +1,7 @@
-function GeometryRenderer(glContext, shaderProgram, resolution, boxRenderers) {
+function GeometryRenderer(glContext, shaderProgram, resolution, boxRenderings) {
   this.glContext = glContext;
   this.shaderProgram = shaderProgram;
-  this.boxRenderers = boxRenderers;
+  this.boxRenderings = boxRenderings;
   this.resolution = resolution;
 }
 
@@ -51,32 +51,46 @@ GeometryRenderer.prototype.initialize = function() {
 GeometryRenderer.prototype.draw = function() {
   var program = this.shaderProgram;
   program.use();
+  var gl = this.glContext;
 
-  this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, this.frameBufferHandle);
-  this.glContext.viewport(0, 0, this.resolution.width, this.resolution.height);
-  this.glContext.clearColor(1, 1, 1, 1);
-  this.glContext.clear(this.glContext.COLOR_BUFFER_BIT | this.glContext.DEPTH_BUFFER_BIT);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBufferHandle);
+  gl.viewport(0, 0, this.resolution.width, this.resolution.height);
+  gl.clearColor(1, 1, 1, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   ['ModelPosition', 'ModelNormal'].forEach(function(attributeName) {
     var handle = program.getAttributeHandle(attributeName);
-    this.glContext.enableVertexAttribArray(handle);
+    gl.enableVertexAttribArray(handle);
   }.bind(this));
 
   var worldViewUniformHandle = program.getUniformHandle('WorldViewTransformation');
-  this.glContext.uniformMatrix4fv(worldViewUniformHandle, false, this.camera.getInverseTransformation().components);
+  gl.uniformMatrix4fv(worldViewUniformHandle, false, this.camera.getInverseTransformation().components);
 
   var lightUniformHandle = program.getUniformHandle('WorldLightDirection');
   var direction = this.light.getDirection();
-  this.glContext.uniform3fv(lightUniformHandle, direction.components);;
+  gl.uniform3fv(lightUniformHandle, direction.components);;
 
-  this.boxRenderers.forEach(function(renderer) {
-    renderer.draw(program);
+  this.boxRenderings.forEach(function(rendering) {
+    var uniformHandle = program.getUniformHandle('ModelWorldTransformation');
+    gl.uniformMatrix4fv(uniformHandle, false, rendering.box.getTransformation().components);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, rendering.bufferHandle);
+
+    var positionAttributeHandle = program.getAttributeHandle('ModelPosition');
+    gl.vertexAttribPointer(positionAttributeHandle, 3, gl.FLOAT, false, 24, 0);
+
+    var normalAttributeHandle = program.getAttributeHandle('ModelNormal');
+    gl.vertexAttribPointer(normalAttributeHandle, 3, gl.FLOAT, false, 24, 12);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 36);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
   });
 
   ['ModelPosition', 'ModelNormal'].forEach(function(attributeName) {
     var handle = program.getAttributeHandle(attributeName);
-    this.glContext.disableVertexAttribArray(handle);
+    gl.disableVertexAttribArray(handle);
   }.bind(this));
-  this.glContext.bindTexture(this.glContext.TEXTURE_2D, null);
-  this.glContext.bindFramebuffer(this.glContext.FRAMEBUFFER, null);
+  gl.bindTexture(gl.TEXTURE_2D, null);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 };
