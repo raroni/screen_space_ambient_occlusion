@@ -1,7 +1,10 @@
-function App(canvas) {
-  this.renderer = new Renderer(canvas);
+function App(container) {
+  this.renderer = new Renderer();
   this.keyboard = new Keyboard();
   this.keyboard.resume();
+
+  this.element = document.createElement('div');
+  this.element.appendChild(this.renderer.canvas)
 }
 
 App.prototype.run = function() {

@@ -1,9 +1,8 @@
 (function() {
   function initialize() {
-    var canvas = document.createElement('canvas');
-    var app = new App(canvas);
     var container = document.querySelector('body > .container');
-    container.appendChild(canvas);
+    var app = new App();
+    container.appendChild(app.element);
     app.run();
   }
 

@@ -1,4 +1,5 @@
-function Renderer(canvas) {
+function Renderer() {
+  var canvas = document.createElement('canvas');
   canvas.width = 1000;
   canvas.height = 400;
   this.glContext = canvas.getContext('webgl');
