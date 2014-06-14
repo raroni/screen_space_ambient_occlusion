@@ -2,7 +2,8 @@ function App(container) {
   var config = {
     ambientOcclusion: {
       constantAttenuation: 10,
-      distanceAttenuation: 50
+      distanceAttenuation: 50,
+      samplingRadius: 20
     }
   };
 

@@ -196,6 +196,7 @@ Renderer.prototype.setupAmbientOcclusionProgram = function() {
   program.setupUniformHandle('NormalTexture');
   program.setupUniformHandle('ConstantAttenuation');
   program.setupUniformHandle('DistanceAttenuation');
+  program.setupUniformHandle('SamplingRadius');
 };
 
 Renderer.prototype.setupPerspective = function() {

@@ -115,6 +115,9 @@ AmbientOcclusionRenderer.prototype.draw = function() {
   var constantAttenuationUniformHandle = this.shaderProgram.getUniformHandle('DistanceAttenuation');
   gl.uniform1f(constantAttenuationUniformHandle, this.config.distanceAttenuation);
 
+  var samplingRadiusUniformHandle = this.shaderProgram.getUniformHandle('SamplingRadius');
+  gl.uniform1f(samplingRadiusUniformHandle, this.config.samplingRadius);
+
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, this.positionDistanceTexture);
   var positionDistanceTextureUniformHandle = this.shaderProgram.getUniformHandle('PositionDistanceTexture');

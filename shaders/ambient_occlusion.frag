@@ -10,6 +10,7 @@ const float OccluderBias = 0.05; // <- fix!
 
 uniform float ConstantAttenuation;
 uniform float DistanceAttenuation;
+uniform float SamplingRadius;
 
 float SamplePixels(vec3 SourcePosition, vec3 SourceNormal, vec2 SampleTextureCoordinates) {
   vec3 SamplePosition = texture2D(PositionDistanceTexture, SampleTextureCoordinates).xyz;
@@ -40,7 +41,6 @@ void main() {
   vec3 Normal = texture2D(NormalTexture, InterpolatedTextureCoordinates).xyz;
 
   vec2 TexelSize = vec2(1.0/1000.0, 1.0/400.0); // <- fix!
-  float SamplingRadius = 10.0; // <- fix!
 
   vec2 RandomVector = normalize(texture2D(RandomTexture, InterpolatedTextureCoordinates).xy);
 
