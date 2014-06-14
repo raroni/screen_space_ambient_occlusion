@@ -108,6 +108,24 @@ App.prototype.setupWorld = function() {
   floor.transformation.position.components[1] = -0.125;
   this.renderer.addBox(floor);
 
+  var backWall = new Box();
+  backWall.size.components[0] = 4.25;
+  backWall.size.components[1] = 2.5;
+  backWall.size.components[2] = 0.25;
+  backWall.transformation.position.components[0] = -2.125;
+  backWall.transformation.position.components[1] = 1;
+  backWall.transformation.position.components[2] = 4.125;
+  this.renderer.addBox(backWall);
+
+  var leftWall = new Box();
+  leftWall.size.components[0] = 0.25;
+  leftWall.size.components[1] = 2.5;
+  leftWall.size.components[2] = 8;
+  leftWall.transformation.position.components[0] = -4.125;
+  leftWall.transformation.position.components[1] = 1;
+  leftWall.transformation.position.components[2] = 0;
+  this.renderer.addBox(leftWall);
+
   this.light = new Light();
   this.light.transformation.rotation = new Vector3(-0.6, 0.4, 0);
   this.light.transformation.position = new Vector3(2, 4, -5);
