@@ -30,6 +30,8 @@ AmbientOcclusionRenderer.prototype.setupRandomTexture = function() {
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
   gl.bindTexture(gl.TEXTURE_2D, null);
   this.randomTexture = texture;
 };
@@ -117,6 +119,12 @@ AmbientOcclusionRenderer.prototype.draw = function() {
 
   var samplingRadiusUniformHandle = this.shaderProgram.getUniformHandle('SamplingRadius');
   gl.uniform1f(samplingRadiusUniformHandle, this.config.samplingRadius);
+
+  var RandomTextureScalingUniformHandle = this.shaderProgram.getUniformHandle('RandomTextureScaling');
+  gl.uniform2fv(RandomTextureScalingUniformHandle, new Float32Array([
+    1000/64,
+    400/64
+  ]));
 
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_2D, this.positionDistanceTexture);
