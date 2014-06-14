@@ -17,6 +17,6 @@ void main() {
   float cosAngIncidence = dot(vec3(worldNormal), vec3(WorldLightDirection*-1.0));
   cosAngIncidence = clamp(cosAngIncidence, 0.0, 1.0);
 
-  vec3 color = vec3(1, 0, 0);
+  vec3 color = vec3(1, 0.55, 0.2);
   vColor = vec4(color*0.5+color*cosAngIncidence*0.5, 1);
 }
