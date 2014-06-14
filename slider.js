@@ -8,7 +8,7 @@ function Slider(label, min, max, value) {
   inputElement.max = max;
   inputElement.step = 0.05;
   inputElement.value = value;
-  inputElement.onchange = function() {
+  inputElement.oninput = function() {
     this.onChange(inputElement.value);
   }.bind(this);
 
