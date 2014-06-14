@@ -1,14 +1,11 @@
-function Renderer() {
+function Renderer(config) {
   var canvas = document.createElement('canvas');
   canvas.width = 1000;
   canvas.height = 400;
   this.glContext = canvas.getContext('webgl');
   this.canvas = canvas;
   this.boxRenderings = [];
-  this.ambientOcclusionConfig = {
-    constantAttenuation: 10,
-    distanceAttenuation: 50
-  };
+  this.config = config;
 }
 
 Renderer.prototype.load = function() {
@@ -120,7 +117,7 @@ Renderer.prototype.setupAmbientOcclusionRenderer = function() {
     this.normalRenderer.texture,
     this.normalMapImage,
     resolution,
-    this.ambientOcclusionConfig
+    this.config.ambientOcclusion
   );
   this.ambientOcclusionRenderer.initialize();
 };

@@ -1,10 +1,19 @@
 function App(container) {
-  this.renderer = new Renderer();
+  var config = {
+    ambientOcclusion: {
+      constantAttenuation: 10,
+      distanceAttenuation: 50
+    }
+  };
+
+  this.renderer = new Renderer(config);
   this.keyboard = new Keyboard();
   this.keyboard.resume();
+  this.configurator = new Configurator(config);
 
   this.element = document.createElement('div');
-  this.element.appendChild(this.renderer.canvas)
+  this.element.appendChild(this.renderer.canvas);
+  this.element.appendChild(this.configurator.element);
 }
 
 App.prototype.run = function() {
