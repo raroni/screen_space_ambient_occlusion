@@ -9,6 +9,6 @@ varying vec3 InterpolatedViewNormal;
 
 void main() {
   mat4 ModelViewTransformation = WorldViewTransformation*ModelWorldTransformation;
-  InterpolatedViewNormal = (ModelViewTransformation*vec4(ModelNormal, 0)).xyz;
+  InterpolatedViewNormal = normalize((ModelViewTransformation*vec4(ModelNormal, 0)).xyz);
   gl_Position = ProjectionTransformation*ModelViewTransformation*vec4(ModelPosition, 1);
 }

@@ -225,9 +225,9 @@ Renderer.prototype.addBox = function(box) {
 };
 
 Renderer.prototype.draw = function() {
+  this.geometryRenderer.draw();
   this.positionDistanceRenderer.draw();
   this.normalRenderer.draw();
-  this.geometryRenderer.draw();
   this.ambientOcclusionRenderer.draw();
   this.finalizationRenderer.draw();
   this.texturePeekRenderer.draw();
